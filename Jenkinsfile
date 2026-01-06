@@ -40,10 +40,13 @@ pipeline {
         stage('Security Scan (SCA)') {
             steps {
                 echo '--- Scanning for known vulnerabilities in dependencies ---'
-                // Utilise le plugin OWASP Dependency-Check pour Maven.
-                // Il scanne toutes les librairies (.jar) utilisées par le projet.
-                // Le build échouera si une vulnérabilité critique est trouvée (configurable dans le pom.xml).
-                sh 'mvn org.owasp:dependency-check-maven:check'
+
+                                // On utilise 'withCredentials' pour injecter le secret dans une variable d'environnement
+                withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+                    // La variable d'environnement NVD_API_KEY ne sera disponible que dans ce bloc
+
+                    // On passe la clé d'API à la commande Maven via un argument -D
+                    sh 'mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${NVD_API_KEY}'
             }
         }
 
