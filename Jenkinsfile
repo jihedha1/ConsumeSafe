@@ -46,7 +46,7 @@ pipeline {
                     // La variable d'environnement NVD_API_KEY ne sera disponible que dans ce bloc
 
                     // On passe la clé d'API à la commande Maven via un argument -D
-                    sh 'mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${NVD_API_KEY}'
+                    sh 'mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${NVD_API_KEY}'}
             }
         }
 
