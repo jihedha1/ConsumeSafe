@@ -1,0 +1,30 @@
+# kubernetes/deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Le nom de notre déploiement
+  name: consumesafe-deployment
+spec:
+  # Nous voulons une seule instance de notre application.
+  # Pour la haute disponibilité, on pourrait mettre 3.
+  replicas: 1
+  selector:
+    matchLabels:
+      # Ce label permet au Deployment de savoir quels Pods il doit gérer.
+      app: consumesafe
+  template:
+    metadata:
+      labels:
+        # Le Pod portera ce label, qui correspond au 'selector' ci-dessus.
+        app: consumesafe
+    spec:
+      containers:
+        - name: consumesafe-app
+          # C'est la ligne la plus importante.
+          # Elle sera mise à jour dynamiquement par notre pipeline Jenkins.
+          # Mettez ici le nom de votre image sur Docker Hub.
+          image: votre-dockerhub-id/consumesafe-spring:latest
+          ports:
+            # Le port que notre conteneur expose (celui de Spring Boot).
+            - containerPort: 8081

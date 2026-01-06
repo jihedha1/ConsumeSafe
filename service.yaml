@@ -1,0 +1,22 @@
+# kubernetes/service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  # Le nom de notre service.
+  name: consumesafe-service
+spec:
+  # Type 'NodePort' : Expose le service sur un port statique sur chaque nœud du cluster.
+  # C'est le moyen le plus simple d'accéder à notre application depuis l'extérieur
+  # dans un environnement de test comme Minikube ou Docker Desktop.
+  type: NodePort
+  selector:
+    # Ce sélecteur doit correspondre au label de nos Pods.
+    # C'est ainsi que le service sait vers quels Pods envoyer le trafic.
+    app: consumesafe
+  ports:
+    - protocol: TCP
+      # Le port sur lequel le service est accessible à l'intérieur du cluster.
+      port: 80
+      # Le port sur lequel notre application écoute à l'intérieur du conteneur.
+      targetPort: 8081
