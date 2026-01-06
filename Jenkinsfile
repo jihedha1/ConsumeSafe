@@ -7,7 +7,7 @@ pipeline {
     // Les noms ('Maven-3.9.6') doivent correspondre EXACTEMENT à ceux configurés dans Jenkins > Global Tool Configuration.
     tools {
         maven 'M2_HOME'
-        jdk 'JDK21' // Assurez-vous que 'JDK21' est le nom de votre configuration JDK dans Jenkins
+        jdk 'JDK21'
     }
 
     // Définition des variables d'environnement pour tout le pipeline.
