@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConsumeSafe - Palestine 🇵🇸</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2d2d2d 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Drapeau Palestine animé en arrière-plan */
+        .flag-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.08;
+            z-index: 0;
+            background: linear-gradient(to bottom,
+            #000000 0%, #000000 33%,
+            #FFFFFF 33%, #FFFFFF 66%,
+            #007A3D 66%, #007A3D 100%);
+        }
+
+        .flag-background::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 50vh 0 50vh 40vw;
+            border-color: transparent transparent transparent #CE1126;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* En-tête avec logo */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(206, 17, 38, 0.3);
+            border: 2px solid rgba(206, 17, 38, 0.3);
+        }
+
+        .logo {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #CE1126, #000000, #007A3D);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        h1 {
+            color: #FFFFFF;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .subtitle {
+            color: #007A3D;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .tagline {
+            color: #CCCCCC;
+            font-size: 1.1em;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(206, 17, 38, 0.2);
+            border-radius: 10px;
+            border-left: 4px solid #CE1126;
+        }
+
+        /* Section de recherche */
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+        }
+
+        .search-title {
+            color: #000000;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 18px 20px;
+            font-size: 1.1em;
+            border: 3px solid #007A3D;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #CE1126;
+            box-shadow: 0 0 0 4px rgba(206, 17, 38, 0.1);
+        }
+
+        button {
+            padding: 18px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #CE1126, #a00e1e);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(206, 17, 38, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(206, 17, 38, 0.6);
+            background: linear-gradient(135deg, #e01429, #CE1126);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Navigation */
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .nav-link {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-link:hover {
+            background: rgba(0, 122, 61, 0.8);
+            border-color: #007A3D;
+            transform: translateY(-2px);
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #CE1126;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #FFFFFF;
+            font-size: 1em;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #CCCCCC;
+            margin-top: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+        }
+
+        .palestine-flag {
+            font-size: 2em;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .search-section { padding: 25px; }
+            .stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="flag-background"></div>
+
+<div class="container">
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🛡️</div>
+            <h1>ConsumeSafe</h1>
+        </div>
+        <div class="subtitle">Consommation Éthique & Solidarité Palestine 🇵🇸</div>
+        <div class="tagline">
+            "Chaque achat est un vote. Choisissez la justice."
+        </div>
+    </div>
+
+    <div class="search-section">
+        <h2 class="search-title">🔍 Vérifier un Produit</h2>
+        <form action="/check" method="post">
+            <div class="input-group">
+                <input
+                        type="text"
+                        name="productName"
+                        placeholder="Entrez le nom d'un produit (ex: Coca-Cola, McDonald's...)"
+                        required
+                        autocomplete="off"
+                >
+            </div>
+            <button type="submit">Vérifier maintenant</button>
+        </form>
+    </div>
+
+    <div class="nav-links">
+        <a href="/list" class="nav-link">📋 Liste Complète</a>
+        <a href="/alternatives" class="nav-link">🇹🇳 Alternatives Tunisiennes</a>
+        <a href="/about" class="nav-link">ℹ️ À Propos</a>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <span class="stat-number">12+</span>
+            <span class="stat-label">Produits Boycottés</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">12+</span>
+            <span class="stat-label">Alternatives Locales</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Solidarité Palestine</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="palestine-flag">🇵🇸</div>
+        <p><strong>Palestine libre, Palestine vivra!</strong></p>
+        <p style="margin-top: 10px; font-size: 0.9em;">
+            Soutenez l'économie locale tunisienne et la cause palestinienne
+        </p>
+    </div>
+</div>
+</body>
+</html>

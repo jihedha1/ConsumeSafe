@@ -1,0 +1,74 @@
+[
+  {
+    "name": "Boga Cidre",
+    "description": "Boisson gazeuse tunisienne rafraîchissante",
+    "category": "Boissons",
+    "isTunisian": true
+  },
+  {
+    "name": "Safia",
+    "description": "Jus naturels tunisiens de qualité",
+    "category": "Boissons",
+    "isTunisian": true
+  },
+  {
+    "name": "Délice Danone",
+    "description": "Produits laitiers tunisiens",
+    "category": "Produits laitiers",
+    "isTunisian": true
+  },
+  {
+    "name": "Vitalait",
+    "description": "Lait et yaourts tunisiens",
+    "category": "Produits laitiers",
+    "isTunisian": true
+  },
+  {
+    "name": "Jaouda",
+    "description": "Pâtisserie et biscuits tunisiens",
+    "category": "Alimentaire",
+    "isTunisian": true
+  },
+  {
+    "name": "Mabrouk",
+    "description": "Café tunisien traditionnel",
+    "category": "Café",
+    "isTunisian": true
+  },
+  {
+    "name": "Sicam",
+    "description": "Produits alimentaires tunisiens variés",
+    "category": "Alimentaire",
+    "isTunisian": true
+  },
+  {
+    "name": "Tofita",
+    "description": "Confiseries et gâteaux tunisiens",
+    "category": "Alimentaire",
+    "isTunisian": true
+  },
+  {
+    "name": "Uno",
+    "description": "Biscuits et pâtisseries tunisiennes",
+    "category": "Alimentaire",
+    "isTunisian": true
+  },
+  {
+    "name": "Monoprix",
+    "description": "Distribution locale tunisienne",
+    "category": "Distribution",
+    "isTunisian": true
+  },
+  {
+    "name": "Géant",
+    "description": "Hypermarché tunisien",
+    "category": "Distribution",
+    "isTunisian": true
+  },
+  {
+    "name": "Aziza",
+    "description": "Huiles et produits alimentaires tunisiens",
+    "category": "Alimentaire",
+    "isTunisian": true
+  }
+]

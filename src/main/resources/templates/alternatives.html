@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alternatives Tunisiennes - ConsumeSafe 🇹🇳</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #E70013 0%, #FFFFFF 50%, #E70013 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #E70013;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .back-btn:hover {
+            background: #c00010;
+            transform: translateY(-2px);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #E70013;
+            margin: 20px 0;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .tunisian-flag {
+            font-size: 4em;
+            margin: 20px 0;
+        }
+
+        .support-banner {
+            background: linear-gradient(135deg, #E70013, #c00010);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 1.2em;
+            box-shadow: 0 8px 20px rgba(231, 0, 19, 0.4);
+        }
+
+        .alternatives-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .alternative-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s;
+            border-top: 5px solid #E70013;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alternative-card::before {
+            content: '🇹🇳';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 6em;
+            opacity: 0.1;
+        }
+
+        .alternative-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(231, 0, 19, 0.3);
+        }
+
+        .product-name {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #E70013;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tunisian-badge {
+            background: linear-gradient(135deg, #E70013, #c00010);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.5em;
+            font-weight: bold;
+        }
+
+        .category-tag {
+            display: inline-block;
+            padding: 6px 15px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            font-size: 0.9em;
+            color: #666;
+            margin: 10px 0;
+        }
+
+        .description {
+            color: #555;
+            line-height: 1.8;
+            margin-top: 15px;
+            font-size: 1.05em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: white;
+            padding: 25px 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #E70013;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .benefits-section {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin: 40px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .benefits-title {
+            font-size: 2em;
+            color: #E70013;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .benefit-item {
+            padding: 20px;
+            background: linear-gradient(135deg, #fff5f5, #ffffff);
+            border-radius: 12px;
+            border-left: 4px solid #E70013;
+        }
+
+        .benefit-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .benefit-title {
+            font-weight: bold;
+            color: #E70013;
+            margin-bottom: 8px;
+        }
+
+        .benefit-text {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .alternatives-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 { font-size: 2em; }
+            .benefits-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <a href="/" class="back-btn">← Retour à l'accueil</a>
+        <div class="tunisian-flag">🇹🇳</div>
+        <h1>Alternatives Tunisiennes</h1>
+        <p class="subtitle">Soutenez l'économie locale et la qualité Made in Tunisia</p>
+    </div>
+
+    <div class="support-banner">
+        💚 Choisir tunisien, c'est soutenir notre économie, créer des emplois et affirmer notre solidarité
+    </div>
+
+    <div class="stats">
+        <div class="stat-item">
+            <div class="stat-number" th:text="${alternatives.size()}">12</div>
+            <div class="stat-label">Produits Tunisiens</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Made in Tunisia</div>
+        </div>
+    </div>
+
+    <div class="alternatives-grid">
+        <div class="alternative-card" th:each="alt : ${alternatives}">
+            <div class="product-name">
+                <span th:text="${alt.name}">Produit</span>
+                <span class="tunisian-badge">🇹🇳 TN</span>
+            </div>
+
+            <span class="category-tag" th:text="${alt.category}">Catégorie</span>
+
+            <div class="description" th:text="${alt.description}">
+                Description du produit
+            </div>
+        </div>
+    </div>
+
+    <div class="benefits-section">
+        <h2 class="benefits-title">🌟 Pourquoi Choisir Tunisien ?</h2>
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <div class="benefit-icon">💼</div>
+                <div class="benefit-title">Emplois Locaux</div>
+                <div class="benefit-text">
+                    Soutenez les entreprises tunisiennes et créez des opportunités d'emploi
+                </div>
+            </div>
+
+            <div class="benefit-item">
+                <div class="benefit-icon">🌍</div>
+                <div class="benefit-title">Écologie</div>
+                <div class="benefit-text">
+                    Réduisez l'empreinte carbone en consommant local
+                </div>
+            </div>
+
+            <div class="benefit-item">
+                <div class="benefit-icon">💰</div>
+                <div class="benefit-title">Économie</div>
+                <div class="benefit-text">
+                    Renforcez l'économie nationale et la souveraineté alimentaire
+                </div>
+            </div>
+
+            <div class="benefit-item">
+                <div class="benefit-icon">✨</div>
+                <div class="benefit-title">Qualité</div>
+                <div class="benefit-text">
+                    Profitez de produits de qualité, fabriqués selon nos traditions
+                </div>
+            </div>
+
+            <div class="benefit-item">
+                <div class="benefit-icon">🇵🇸</div>
+                <div class="benefit-title">Solidarité</div>
+                <div class="benefit-text">
+                    Exprimez votre soutien à la Palestine par vos choix de consommation
+                </div>
+            </div>
+
+            <div class="benefit-item">
+                <div class="benefit-icon">🛡️</div>
+                <div class="benefit-title">Indépendance</div>
+                <div class="benefit-text">
+                    Favorisez l'indépendance économique de la Tunisie
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <h2 style="color: #E70013; margin-bottom: 15px;">🇹🇳 Fiers d'être Tunisiens</h2>
+        <p style="color: #666; font-size: 1.1em;">
+            Ensemble, construisons une économie forte et indépendante
+        </p>
+        <div style="margin-top: 20px;">
+            <a href="/list" class="back-btn">📋 Voir la Liste de Boycott</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

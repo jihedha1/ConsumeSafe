@@ -1,0 +1,74 @@
+[
+  {
+    "name": "Coca-Cola",
+    "reason": "Soutien financier à Israël",
+    "severity": "high",
+    "category": "Boissons"
+  },
+  {
+    "name": "Pepsi",
+    "reason": "Investissements en Israël",
+    "severity": "high",
+    "category": "Boissons"
+  },
+  {
+    "name": "McDonald's",
+    "reason": "Soutien direct à l'armée israélienne",
+    "severity": "high",
+    "category": "Fast-food"
+  },
+  {
+    "name": "Starbucks",
+    "reason": "Soutien politique à Israël",
+    "severity": "high",
+    "category": "Café"
+  },
+  {
+    "name": "Nestlé",
+    "reason": "Activités commerciales en Israël",
+    "severity": "medium",
+    "category": "Alimentaire"
+  },
+  {
+    "name": "HP",
+    "reason": "Fourniture de technologies pour l'occupation",
+    "severity": "high",
+    "category": "Technologie"
+  },
+  {
+    "name": "Carrefour",
+    "reason": "Produits des colonies israéliennes",
+    "severity": "medium",
+    "category": "Distribution"
+  },
+  {
+    "name": "Danone",
+    "reason": "Usine en Israël",
+    "severity": "medium",
+    "category": "Produits laitiers"
+  },
+  {
+    "name": "L'Oréal",
+    "reason": "Investissements en Israël",
+    "severity": "medium",
+    "category": "Cosmétiques"
+  },
+  {
+    "name": "Puma",
+    "reason": "Sponsor de l'équipe nationale israélienne",
+    "severity": "high",
+    "category": "Sport"
+  },
+  {
+    "name": "AXA",
+    "reason": "Investissements dans les colonies",
+    "severity": "medium",
+    "category": "Assurance"
+  },
+  {
+    "name": "SodaStream",
+    "reason": "Usine en territoire occupé",
+    "severity": "high",
+    "category": "Électroménager"
+  }
+]
