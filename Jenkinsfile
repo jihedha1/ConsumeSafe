@@ -6,7 +6,7 @@ pipeline {
     // Définition des outils qui seront utilisés. Jenkins les mettra à disposition dans le PATH.
     // Les noms ('Maven-3.9.6') doivent correspondre EXACTEMENT à ceux configurés dans Jenkins > Global Tool Configuration.
     tools {
-        maven 'Maven-3.9.6'
+        maven 'M2_HOME'
         jdk 'JDK21' // Assurez-vous que 'JDK21' est le nom de votre configuration JDK dans Jenkins
     }
 
