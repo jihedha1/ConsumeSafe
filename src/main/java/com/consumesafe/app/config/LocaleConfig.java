@@ -16,17 +16,18 @@ public class LocaleConfig implements WebMvcConfigurer {
 
     @Bean
     public LocaleResolver localeResolver() {
-        CookieLocaleResolver resolver = new CookieLocaleResolver();
-        resolver.setDefaultLocale(Locale.FRENCH); // Français par défaut
-        resolver.setCookieName("lang");
+        CookieLocaleResolver resolver = new CookieLocaleResolver("lang");
+        resolver.setDefaultLocale(Locale.FRENCH);
+        resolver.setCookieName("appLanguage");
         resolver.setCookieMaxAge(31536000); // 1 an
+        resolver.setCookiePath("/");
         return resolver;
     }
 
     @Bean
     public LocaleChangeInterceptor localeChangeInterceptor() {
         LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
-        interceptor.setParamName("lang"); // URL: ?lang=en
+        interceptor.setParamName("lang");
         return interceptor;
     }
 

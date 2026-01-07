@@ -22,27 +22,27 @@
         <div class="navbar-menu" id="navbarMenu">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a href="/" class="nav-link" th:text="#{nav.home}">
+                    <a href="/" class="nav-link">
                         <span class="nav-icon">🏠</span>
-                        Accueil
+                        <span th:text="#{nav.home}">Accueil</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/list" class="nav-link" th:text="#{nav.list}">
+                    <a href="/list" class="nav-link">
                         <span class="nav-icon">📋</span>
-                        Liste de Boycott
+                        <span th:text="#{nav.list}">Liste de Boycott</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/alternatives" class="nav-link" th:text="#{nav.alternatives}">
+                    <a href="/alternatives" class="nav-link">
                         <span class="nav-icon">🇹🇳</span>
-                        Alternatives
+                        <span th:text="#{nav.alternatives}">Alternatives</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/about" class="nav-link" th:text="#{nav.about}">
+                    <a href="/about" class="nav-link">
                         <span class="nav-icon">ℹ️</span>
-                        À Propos
+                        <span th:text="#{nav.about}">À Propos</span>
                     </a>
                 </li>
             </ul>
@@ -73,11 +73,6 @@
                         </a>
                     </div>
                 </div>
-
-                <!-- Toggle thème -->
-                <button class="theme-toggle-nav" id="themeToggleNav" aria-label="Toggle theme">
-                    <span class="theme-icon" id="themeIconNav">🌙</span>
-                </button>
 
                 <!-- Image Palestine -->
                 <div class="palestine-badge">
@@ -349,28 +344,7 @@
         font-size: 1.5em;
     }
 
-    /* Theme Toggle */
-    .theme-toggle-nav {
-        width: 45px;
-        height: 45px;
-        border: 2px solid var(--palestine-green);
-        background: rgba(0, 122, 61, 0.1);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: var(--transition-normal);
-    }
-
-    .theme-toggle-nav:hover {
-        background: var(--palestine-green);
-        transform: scale(1.1) rotate(15deg);
-    }
-
-    .theme-icon {
-        font-size: 1.5em;
-    }
+    /* Theme Toggle supprimé - utiliser le bouton existant */
 
     /* Palestine Badge */
     .palestine-badge {
@@ -514,30 +488,7 @@
             });
         }
 
-        // Theme toggle
-        const themeToggleNav = document.getElementById('themeToggleNav');
-        const themeIconNav = document.getElementById('themeIconNav');
-
-        if (themeToggleNav) {
-            const currentTheme = localStorage.getItem('theme') || 'dark';
-            updateNavThemeIcon(currentTheme);
-
-            themeToggleNav.addEventListener('click', () => {
-                const body = document.body;
-                const currentTheme = body.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-                body.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-                updateNavThemeIcon(newTheme);
-            });
-        }
-
-        function updateNavThemeIcon(theme) {
-            if (themeIconNav) {
-                themeIconNav.textContent = theme === 'dark' ? '🌙' : '☀️';
-            }
-        }
+        // Theme toggle supprimé - utiliser le bouton existant dans la page
 
         // Scroll effect
         let lastScroll = 0;
@@ -699,7 +650,7 @@
         /* Toggle Theme */
         .theme-toggle {
             position: fixed;
-            top: 20px;
+            top: 84%;
             right: 20px;
             z-index: 1000;
             background: var(--card-bg);

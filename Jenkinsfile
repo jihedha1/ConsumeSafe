@@ -5,7 +5,7 @@ pipeline {
         jdk 'JDK21'
     }
     environment {
-        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
+        DOCKER_CREDENTIALS_ID = 'dockerhub-pwd'
         DOCKER_REGISTRY_URL = 'https://registry.hub.docker.com'
         DOCKER_IMAGE_NAME = "votre-dockerhub-id/consumesafe-spring"
         TRIVY_CACHE_DIR = "/var/lib/jenkins/.trivy/cache"
