@@ -69,10 +69,6 @@
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
                 <version>9.0.9</version>
-                <configuration>
-                    <!-- Le plugin lira la propriété 'nvd.api.key' définie dans notre fichier settings.xml -->
-                    <nvdApiKey>${nvd.api.key}</nvdApiKey>
-                </configuration>
                 <executions>
                     <execution>
                         <goals>
