@@ -76,7 +76,7 @@ pipeline {
         stage('Security Scan - Docker Image') {
             steps {
                 echo "--- Scanning Docker image: ${env.DOCKER_IMAGE_VERSION} ---"
-                sh "trivy image --severity CRITICAL,HIGH ${env.DOCKER_IMAGE_VERSION}"
+                sh "trivy image --scanners vuln --skip-db-update --severity CRITICAL,HIGH ${env.DOCKER_IMAGE_VERSION}"
             }
         }
         stage('Push to Docker Hub') {

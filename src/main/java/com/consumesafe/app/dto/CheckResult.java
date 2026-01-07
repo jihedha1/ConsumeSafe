@@ -7,12 +7,14 @@ public class CheckResult {
     private String suggestion;
     private String message;
     private String reason;
-    private String severity; // "high", "medium", "low"
+    private String severity; // "high", "medium", "low", "safe", "unknown"
+    private boolean productFound; // Nouveau champ pour indiquer si le produit existe dans la base
 
     public CheckResult(String productName) {
         this.productName = productName;
         this.isBoycotted = false;
-        this.severity = "low";
+        this.severity = "unknown";
+        this.productFound = true; // Par défaut
     }
 
     // Getters
@@ -40,6 +42,10 @@ public class CheckResult {
         return severity;
     }
 
+    public boolean isProductFound() {
+        return productFound;
+    }
+
     // Setters
     public void setProductName(String productName) {
         this.productName = productName;
@@ -63,5 +69,19 @@ public class CheckResult {
 
     public void setSeverity(String severity) {
         this.severity = severity;
+    }
+
+    public void setProductFound(boolean productFound) {
+        this.productFound = productFound;
+    }
+
+    public String getResultType() {
+        if (!productFound) {
+            return "unknown";
+        }
+        if (isBoycotted) {
+            return "boycotted";
+        }
+        return "safe";
     }
 }

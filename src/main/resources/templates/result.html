@@ -13,6 +13,7 @@
             --text-secondary: #CCCCCC;
             --palestine-red: #CE1126;
             --palestine-green: #007A3D;
+            --warning-yellow: #FFC107;
             --card-bg: #ffffff;
             --shadow: rgba(0, 0, 0, 0.5);
             --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -42,7 +43,7 @@
 
         .theme-toggle {
             position: fixed;
-            top:84%;
+            top: 84%;
             right: 20px;
             z-index: 1000;
             background: var(--card-bg);
@@ -153,6 +154,11 @@
             color: white;
         }
 
+        .unknown {
+            background: linear-gradient(135deg, #FFC107, #FF9800);
+            color: #000;
+        }
+
         .status-icon {
             font-size: 5em;
             text-align: center;
@@ -190,71 +196,47 @@
             border-left: 5px solid #007A3D;
         }
 
-        .share-section {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            padding: 30px;
+        .message.unknown {
+            background: rgba(255, 193, 7, 0.1);
+            color: #856404;
+            border-left: 5px solid #FFC107;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
+            border: 2px solid #FFC107;
             border-radius: 15px;
-            margin: 30px 0;
-            text-align: center;
-            color: white;
+            padding: 30px;
+            margin: 25px 0;
+            animation: slideInLeft 0.8s ease-out 0.5s both;
         }
 
-        .share-title {
-            font-size: 1.5em;
-            margin-bottom: 20px;
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
-        .share-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .share-btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 10px;
-            color: white;
+        .warning-title {
             font-weight: bold;
-            cursor: pointer;
-            transition: var(--transition);
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #856404;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 1em;
+            gap: 10px;
         }
 
-        .share-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .share-facebook { background: #1877f2; }
-        .share-twitter { background: #1da1f2; }
-        .share-whatsapp { background: #25d366; }
-        .share-copy { background: #6c757d; }
-
-        .favorite-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 2em;
-            cursor: pointer;
-            transition: var(--transition);
-            filter: grayscale(100%);
-        }
-
-        .favorite-btn.active {
-            filter: grayscale(0%);
-            animation: heartBeat 0.5s ease-in-out;
-        }
-
-        @keyframes heartBeat {
-            0%, 100% { transform: scale(1); }
-            25% { transform: scale(1.3); }
-            50% { transform: scale(1.1); }
-            75% { transform: scale(1.2); }
+        .warning-text {
+            color: #856404;
+            font-size: 1.05em;
+            line-height: 1.8;
+            white-space: pre-line;
         }
 
         .reason-box {
@@ -268,17 +250,6 @@
 
         [data-theme="light"] .reason-box {
             background: #f8f9fa;
-        }
-
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
         }
 
         .reason-title {
@@ -311,6 +282,11 @@
         .severity.medium {
             background: #FF6B35;
             color: white;
+        }
+
+        .severity.unknown {
+            background: #FFC107;
+            color: #000;
         }
 
         .suggestion-box {
@@ -410,24 +386,15 @@
             box-shadow: 0 6px 20px rgba(0, 122, 61, 0.6);
         }
 
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #28a745;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            opacity: 0;
-            transform: translateY(100px);
-            transition: all 0.3s ease-out;
+        .btn-warning {
+            background: linear-gradient(135deg, #FFC107, #FF9800);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
         }
 
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.6);
         }
 
         @media (max-width: 768px) {
@@ -435,7 +402,6 @@
             .product-name { font-size: 1.8em; }
             .message { font-size: 1.2em; }
             .action-buttons { flex-direction: column; }
-            .share-buttons { flex-direction: column; }
         }
     </style>
 </head>
@@ -452,77 +418,77 @@
     </div>
 
     <div class="result-card">
-        <div class="favorite-btn" id="favoriteBtn" th:attr="data-product=${result.productName}">
-            ❤️
-        </div>
-
-        <div class="product-name" th:classappend="${result.isBoycotted ? 'boycotted' : 'safe'}">
+        <!-- Nom du produit avec classe conditionnelle -->
+        <div class="product-name"
+             th:classappend="${result.severity == 'unknown' ? 'unknown' : (result.isBoycotted ? 'boycotted' : 'safe')}">
             <span th:text="${result.productName}">Nom du Produit</span>
         </div>
 
+        <!-- Icône de statut -->
         <div class="status-icon">
             <span th:if="${result.isBoycotted}">⚠️</span>
-            <span th:unless="${result.isBoycotted}">✅</span>
+            <span th:if="${!result.isBoycotted and result.severity == 'unknown'}">❓</span>
+            <span th:if="${!result.isBoycotted and result.severity != 'unknown'}">✅</span>
         </div>
 
-        <div class="message" th:classappend="${result.isBoycotted ? 'warning' : 'success'}">
+        <!-- Message principal -->
+        <div class="message"
+             th:classappend="${result.severity == 'unknown' ? 'unknown' : (result.isBoycotted ? 'warning' : 'success')}">
             <span th:text="${result.message}">Message</span>
         </div>
 
-        <!-- Partage Social -->
-        <div class="share-section">
-            <div class="share-title">📢 Partagez ce Résultat</div>
-            <div class="share-buttons">
-                <button class="share-btn share-facebook" onclick="shareOnFacebook()">
-                    📘 Facebook
-                </button>
-                <button class="share-btn share-twitter" onclick="shareOnTwitter()">
-                    🐦 Twitter
-                </button>
-                <button class="share-btn share-whatsapp" onclick="shareOnWhatsApp()">
-                    💬 WhatsApp
-                </button>
-                <button class="share-btn share-copy" onclick="copyLink()">
-                    📋 Copier le lien
-                </button>
+        <!-- Box d'avertissement pour les produits inconnus -->
+        <div class="warning-box" th:if="${result.severity == 'unknown'}">
+            <div class="warning-title">
+                ⚠️ Produit Non Répertorié
+            </div>
+            <div class="warning-text" th:text="${result.reason}">
+                Information sur le produit inconnu
             </div>
         </div>
 
+        <!-- Raison du boycott (pour les produits boycottés) -->
         <div th:if="${result.isBoycotted}">
             <div class="reason-box">
                 <div class="reason-title">📌 Raison du Boycott</div>
                 <div class="reason-text" th:text="${result.reason}">Raison</div>
 
                 <div style="margin-top: 15px;">
-                        <span class="severity"
-                              th:classappend="${result.severity}"
-                              th:text="${result.severity == 'high' ? '🔴 Priorité Haute' : '🟠 Priorité Moyenne'}">
-                        </span>
-                </div>
-            </div>
-
-            <div class="suggestion-box" th:if="${result.suggestion}">
-                <div class="suggestion-title">
-                    🇹🇳 Alternative Tunisienne Recommandée
-                </div>
-                <div class="suggestion-text" th:text="${result.suggestion}">
-                    Suggestion
+                    <span class="severity"
+                          th:classappend="${result.severity}"
+                          th:text="${result.severity == 'high' ? '🔴 Priorité Haute' : '🟠 Priorité Moyenne'}">
+                    </span>
                 </div>
             </div>
         </div>
 
+        <!-- Suggestion d'alternative -->
+        <div class="suggestion-box" th:if="${result.suggestion}">
+            <div class="suggestion-title">
+                <span th:if="${result.severity == 'unknown'}">💡</span>
+                <span th:if="${result.severity != 'unknown'}">🇹🇳</span>
+                <span th:text="${result.severity == 'unknown' ? 'Conseil' : 'Alternative Tunisienne Recommandée'}">
+                    Alternative
+                </span>
+            </div>
+            <div class="suggestion-text" th:text="${result.suggestion}">
+                Suggestion
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
         <div class="action-buttons">
             <a href="/" class="btn btn-primary">🔍 Vérifier un autre produit</a>
+            <a href="/list" class="btn btn-warning" th:if="${result.severity == 'unknown'}">📋 Voir la liste complète</a>
             <a href="/alternatives" class="btn btn-secondary">🇹🇳 Voir les alternatives</a>
         </div>
     </div>
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script th:inline="javascript">
     const productName = /*[[${result.productName}]]*/ 'Produit';
     const isBoycotted = /*[[${result.isBoycotted}]]*/ false;
+    const severity = /*[[${result.severity}]]*/ 'unknown';
 
     // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
@@ -547,63 +513,11 @@
         themeText.textContent = theme === 'dark' ? 'Sombre' : 'Clair';
     }
 
-    // Favoris
-    const favoriteBtn = document.getElementById('favoriteBtn');
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-
-    if (favorites.includes(productName)) {
-        favoriteBtn.classList.add('active');
-    }
-
-    favoriteBtn.addEventListener('click', () => {
-        let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-
-        if (favorites.includes(productName)) {
-            favorites = favorites.filter(f => f !== productName);
-            favoriteBtn.classList.remove('active');
-            showToast('Retiré des favoris');
-        } else {
-            favorites.push(productName);
-            favoriteBtn.classList.add('active');
-            showToast('Ajouté aux favoris ❤️');
-        }
-
-        localStorage.setItem('favorites', JSON.stringify(favorites));
-    });
-
-    // Partage Social
-    function shareOnFacebook() {
-        const url = encodeURIComponent(window.location.href);
-        const text = encodeURIComponent(`J'ai vérifié "${productName}" sur ConsumeSafe 🇵🇸`);
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-    }
-
-    function shareOnTwitter() {
-        const url = encodeURIComponent(window.location.href);
-        const text = encodeURIComponent(`J'ai vérifié "${productName}" sur ConsumeSafe 🇵🇸 - Pour une consommation éthique!`);
-        window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-    }
-
-    function shareOnWhatsApp() {
-        const url = encodeURIComponent(window.location.href);
-        const text = encodeURIComponent(`🇵🇸 ConsumeSafe: "${productName}" ${isBoycotted ? 'est à boycotter!' : 'n\'est pas sur la liste de boycott.'} Vérifie ici: ${window.location.href}`);
-        window.open(`https://wa.me/?text=${text}`, '_blank');
-    }
-
-    function copyLink() {
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            showToast('Lien copié! 📋');
-        });
-    }
-
-    function showToast(message) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.classList.add('show');
-
+    // Afficher une alerte supplémentaire pour les produits inconnus
+    if (severity === 'unknown') {
         setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3000);
+            console.log('⚠️ Produit non répertorié. Soyez vigilant!');
+        }, 1000);
     }
 </script>
 <!--

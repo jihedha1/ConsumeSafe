@@ -46,17 +46,20 @@ public class ProductService {
     public CheckResult checkProduct(String productName) {
         CheckResult result = new CheckResult(productName);
 
+        // Recherche exacte du produit
         Product foundProduct = boycottList.stream()
                 .filter(item -> item.getName().equalsIgnoreCase(productName.trim()))
                 .findFirst()
                 .orElse(null);
 
         if (foundProduct != null) {
+            // Produit trouvé dans la liste de boycott
             result.setBoycotted(true);
             result.setMessage("⚠️ Ce produit est sur la liste de boycott");
             result.setReason(foundProduct.getReason());
             result.setSeverity(foundProduct.getSeverity());
 
+            // Suggestion d'alternatives
             List<Alternative> sameCategory = alternativesList.stream()
                     .filter(alt -> alt.getCategory().equalsIgnoreCase(foundProduct.getCategory()))
                     .collect(Collectors.toList());
@@ -67,9 +70,40 @@ public class ProductService {
                 result.setSuggestion(suggestion.getName() + " - " + suggestion.getDescription());
             }
         } else {
-            result.setBoycotted(false);
-            result.setMessage("✓ Ce produit ne semble pas être sur la liste de boycott");
-            result.setSeverity("safe");
+            // Recherche floue pour vérifier si un produit similaire existe
+            List<Product> similarProducts = fuzzySearch(productName);
+
+            if (!similarProducts.isEmpty()) {
+                // Des produits similaires existent - suggérer à l'utilisateur
+                result.setBoycotted(false);
+                result.setMessage("❓ Produit non trouvé. Vouliez-vous dire : " +
+                        similarProducts.stream()
+                                .limit(3)
+                                .map(Product::getName)
+                                .collect(Collectors.joining(", ")) + " ?");
+                result.setSeverity("unknown");
+                result.setReason("Ce produit n'est pas dans notre base de données. Veuillez vérifier l'orthographe ou consulter la liste complète.");
+            } else {
+                // Aucun produit similaire trouvé
+                result.setBoycotted(false);
+                result.setMessage("❓ Produit inconnu - Non répertorié dans notre base de données");
+                result.setSeverity("unknown");
+                result.setReason("⚠️ ATTENTION : Ce produit n'est pas dans notre base de données actuelle. " +
+                        "Cela ne signifie pas qu'il est sûr à consommer. " +
+                        "Nous vous recommandons de :\n" +
+                        "• Vérifier la liste complète des produits\n" +
+                        "• Rechercher l'origine et les liens du fabricant\n" +
+                        "• Privilégier les alternatives tunisiennes pour plus de sécurité\n" +
+                        "• Nous contacter si vous avez des informations sur ce produit");
+
+                // Suggérer des alternatives générales
+                if (!alternativesList.isEmpty()) {
+                    Random rand = new Random();
+                    Alternative suggestion = alternativesList.get(rand.nextInt(alternativesList.size()));
+                    result.setSuggestion("💡 Conseil : Privilégiez les produits tunisiens comme " +
+                            suggestion.getName() + " - " + suggestion.getDescription());
+                }
+            }
         }
 
         return result;
@@ -112,16 +146,34 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    // Recherche floue (correction orthographique basique)
+    // Recherche floue avec distance de Levenshtein améliorée
     public List<Product> fuzzySearch(String query) {
-        String lowerQuery = query.toLowerCase();
+        if (query == null || query.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String lowerQuery = query.toLowerCase().trim();
+
+        // Seuil de distance adaptatif basé sur la longueur de la requête
+        int threshold = query.length() <= 5 ? 1 : (query.length() <= 10 ? 2 : 3);
 
         return boycottList.stream()
                 .filter(p -> {
                     String name = p.getName().toLowerCase();
-                    return name.contains(lowerQuery) ||
-                            levenshteinDistance(name, lowerQuery) <= 2;
+                    // Recherche exacte par sous-chaîne
+                    if (name.contains(lowerQuery) || lowerQuery.contains(name)) {
+                        return true;
+                    }
+                    // Recherche avec distance de Levenshtein
+                    return levenshteinDistance(name, lowerQuery) <= threshold;
                 })
+                .sorted((p1, p2) -> {
+                    // Trier par pertinence (distance de Levenshtein)
+                    int dist1 = levenshteinDistance(p1.getName().toLowerCase(), lowerQuery);
+                    int dist2 = levenshteinDistance(p2.getName().toLowerCase(), lowerQuery);
+                    return Integer.compare(dist1, dist2);
+                })
+                .limit(5)
                 .collect(Collectors.toList());
     }
 
@@ -140,9 +192,9 @@ public class ProductService {
             for (int j = 1; j <= s2.length(); j++) {
                 int cost = s1.charAt(i - 1) == s2.charAt(j - 1) ? 0 : 1;
                 dp[i][j] = Math.min(Math.min(
-                                dp[i - 1][j] + 1,
-                                dp[i][j - 1] + 1),
-                        dp[i - 1][j - 1] + cost
+                                dp[i - 1][j] + 1,      // Suppression
+                                dp[i][j - 1] + 1),     // Insertion
+                        dp[i - 1][j - 1] + cost        // Substitution
                 );
             }
         }
@@ -162,5 +214,10 @@ public class ProductService {
                         Product::getCategory,
                         Collectors.counting()
                 ));
+    }
+
+    public boolean productExists(String productName) {
+        return boycottList.stream()
+                .anyMatch(p -> p.getName().equalsIgnoreCase(productName.trim()));
     }
 }
