@@ -41,12 +41,10 @@ pipeline {
             steps {
                 echo '--- Scanning for known vulnerabilities in dependencies ---'
 
-                                // On utilise 'withCredentials' pour injecter le secret dans une variable d'environnement
-                withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
-                    // La variable d'environnement NVD_API_KEY ne sera disponible que dans ce bloc
-
-                    // On passe la clé d'API à la commande Maven via un argument -D
-                    sh 'mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${NVD_API_KEY}'}
+                        withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+                            // Utilisation de guillemets doubles pour assurer l'interpolation de la variable
+                            sh "mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${NVD_API_KEY}"
+                        }
             }
         }
 
