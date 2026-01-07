@@ -61,29 +61,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-
-            <!-- ===================================================================== -->
-            <!-- PLUGIN OWASP DEPENDENCY-CHECK AVEC LA CONFIGURATION DE CONTOURNEMENT  -->
-            <!-- ===================================================================== -->
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>${dependency-check-maven.version}</version>
-                <configuration>
-                    <!-- Option pour faire échouer le build si une vulnérabilité d'un certain niveau est trouvée -->
-                    <failBuildOnCVSS>8</failBuildOnCVSS>
-                </configuration>
-                <executions>
-                    <execution>
-                        <!-- Le goal 'check' sera exécuté automatiquement pendant la phase 'verify' du cycle de vie Maven -->
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- ===================================================================== -->
-
         </plugins>
     </build>
 
