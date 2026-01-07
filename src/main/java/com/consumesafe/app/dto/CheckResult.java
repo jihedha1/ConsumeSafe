@@ -75,6 +75,7 @@ public class CheckResult {
         this.productFound = productFound;
     }
 
+    // Méthode utilitaire pour déterminer le type de résultat
     public String getResultType() {
         if (!productFound) {
             return "unknown";
@@ -83,5 +84,16 @@ public class CheckResult {
             return "boycotted";
         }
         return "safe";
+    }
+
+    @Override
+    public String toString() {
+        return "CheckResult{" +
+                "productName='" + productName + '\'' +
+                ", isBoycotted=" + isBoycotted +
+                ", severity='" + severity + '\'' +
+                ", productFound=" + productFound +
+                ", message='" + message + '\'' +
+                '}';
     }
 }

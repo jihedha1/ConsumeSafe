@@ -46,7 +46,7 @@ public class ProductService {
     public CheckResult checkProduct(String productName) {
         CheckResult result = new CheckResult(productName);
 
-        // Recherche exacte du produit
+        // 1. Vérifier d'abord si le produit est dans la liste de BOYCOTT
         Product foundProduct = boycottList.stream()
                 .filter(item -> item.getName().equalsIgnoreCase(productName.trim()))
                 .findFirst()
@@ -58,6 +58,7 @@ public class ProductService {
             result.setMessage("⚠️ Ce produit est sur la liste de boycott");
             result.setReason(foundProduct.getReason());
             result.setSeverity(foundProduct.getSeverity());
+            result.setProductFound(true);
 
             // Suggestion d'alternatives
             List<Alternative> sameCategory = alternativesList.stream()
@@ -69,40 +70,98 @@ public class ProductService {
                 Alternative suggestion = sameCategory.get(rand.nextInt(sameCategory.size()));
                 result.setSuggestion(suggestion.getName() + " - " + suggestion.getDescription());
             }
-        } else {
-            // Recherche floue pour vérifier si un produit similaire existe
-            List<Product> similarProducts = fuzzySearch(productName);
+            return result;
+        }
 
-            if (!similarProducts.isEmpty()) {
-                // Des produits similaires existent - suggérer à l'utilisateur
-                result.setBoycotted(false);
-                result.setMessage("❓ Produit non trouvé. Vouliez-vous dire : " +
-                        similarProducts.stream()
-                                .limit(3)
-                                .map(Product::getName)
-                                .collect(Collectors.joining(", ")) + " ?");
-                result.setSeverity("unknown");
-                result.setReason("Ce produit n'est pas dans notre base de données. Veuillez vérifier l'orthographe ou consulter la liste complète.");
+        // 2. Vérifier si le produit est dans la liste des ALTERNATIVES (produits sûrs/tunisiens)
+        Alternative foundAlternative = alternativesList.stream()
+                .filter(alt -> alt.getName().equalsIgnoreCase(productName.trim()))
+                .findFirst()
+                .orElse(null);
+
+        if (foundAlternative != null) {
+            // Produit trouvé dans les alternatives - C'EST UN PRODUIT SÛR !
+            result.setBoycotted(false);
+            result.setProductFound(true);
+            result.setMessage("✅ Excellent choix ! Ce produit est une alternative tunisienne recommandée 🇹🇳");
+            result.setSeverity("safe");
+            result.setReason("🇹🇳 " + foundAlternative.getDescription() +
+                    "\n\nEn choisissant ce produit tunisien, vous :\n" +
+                    "✓ Soutenez l'économie locale\n" +
+                    "✓ Créez des emplois en Tunisie\n" +
+                    "✓ Garantissez la qualité Made in Tunisia\n" +
+                    "✓ Exprimez votre solidarité avec la Palestine");
+
+            // Suggérer d'autres alternatives de la même catégorie
+            List<Alternative> sameCategory = alternativesList.stream()
+                    .filter(alt -> alt.getCategory().equalsIgnoreCase(foundAlternative.getCategory())
+                            && !alt.getName().equalsIgnoreCase(productName.trim()))
+                    .collect(Collectors.toList());
+
+            if (!sameCategory.isEmpty()) {
+                Random rand = new Random();
+                Alternative otherSuggestion = sameCategory.get(rand.nextInt(sameCategory.size()));
+                result.setSuggestion("💡 Autres produits tunisiens dans la catégorie " +
+                        foundAlternative.getCategory() + " : " +
+                        otherSuggestion.getName() + " - " + otherSuggestion.getDescription());
             } else {
-                // Aucun produit similaire trouvé
-                result.setBoycotted(false);
-                result.setMessage("❓ Produit inconnu - Non répertorié dans notre base de données");
-                result.setSeverity("unknown");
-                result.setReason("⚠️ ATTENTION : Ce produit n'est pas dans notre base de données actuelle. " +
-                        "Cela ne signifie pas qu'il est sûr à consommer. " +
-                        "Nous vous recommandons de :\n" +
-                        "• Vérifier la liste complète des produits\n" +
-                        "• Rechercher l'origine et les liens du fabricant\n" +
-                        "• Privilégier les alternatives tunisiennes pour plus de sécurité\n" +
-                        "• Nous contacter si vous avez des informations sur ce produit");
+                result.setSuggestion("🇹🇳 Continuez à soutenir les produits tunisiens ! Consultez notre liste complète d'alternatives.");
+            }
+            return result;
+        }
 
-                // Suggérer des alternatives générales
-                if (!alternativesList.isEmpty()) {
-                    Random rand = new Random();
-                    Alternative suggestion = alternativesList.get(rand.nextInt(alternativesList.size()));
-                    result.setSuggestion("💡 Conseil : Privilégiez les produits tunisiens comme " +
-                            suggestion.getName() + " - " + suggestion.getDescription());
-                }
+        // 3. Le produit n'est ni dans la liste de boycott, ni dans les alternatives
+        // Recherche floue dans la liste de boycott ET les alternatives
+        List<Product> similarBoycottProducts = fuzzySearch(productName);
+        List<Alternative> similarAlternatives = fuzzySearchAlternatives(productName);
+
+        if (!similarBoycottProducts.isEmpty() || !similarAlternatives.isEmpty()) {
+            // Des produits similaires existent - suggérer à l'utilisateur
+            result.setBoycotted(false);
+            result.setProductFound(false);
+            result.setSeverity("unknown");
+
+            StringBuilder suggestions = new StringBuilder("❓ Produit non trouvé. Vouliez-vous dire :\n");
+
+            if (!similarBoycottProducts.isEmpty()) {
+                suggestions.append("\n⚠️ Produits à boycotter : ")
+                        .append(similarBoycottProducts.stream()
+                                .limit(2)
+                                .map(Product::getName)
+                                .collect(Collectors.joining(", ")));
+            }
+
+            if (!similarAlternatives.isEmpty()) {
+                suggestions.append("\n✅ Alternatives tunisiennes : ")
+                        .append(similarAlternatives.stream()
+                                .limit(2)
+                                .map(Alternative::getName)
+                                .collect(Collectors.joining(", ")));
+            }
+
+            result.setMessage(suggestions.toString());
+            result.setReason("Ce produit n'est pas dans notre base de données. Veuillez vérifier l'orthographe ou consulter la liste complète.");
+        } else {
+            // Aucun produit similaire trouvé
+            result.setBoycotted(false);
+            result.setProductFound(false);
+            result.setMessage("❓ Produit inconnu - Non répertorié dans notre base de données");
+            result.setSeverity("unknown");
+            result.setReason("⚠️ ATTENTION : Ce produit n'est pas dans notre base de données actuelle. " +
+                    "Cela ne signifie pas qu'il est sûr à consommer. " +
+                    "\n\nNous vous recommandons de :\n" +
+                    "• Vérifier la liste complète des produits boycottés\n" +
+                    "• Consulter nos alternatives tunisiennes\n" +
+                    "• Rechercher l'origine et les liens du fabricant\n" +
+                    "• Privilégier les alternatives tunisiennes pour plus de sécurité\n" +
+                    "• Nous contacter si vous avez des informations sur ce produit");
+
+            // Suggérer des alternatives générales
+            if (!alternativesList.isEmpty()) {
+                Random rand = new Random();
+                Alternative suggestion = alternativesList.get(rand.nextInt(alternativesList.size()));
+                result.setSuggestion("💡 Conseil : Privilégiez les produits tunisiens comme " +
+                        suggestion.getName() + " - " + suggestion.getDescription());
             }
         }
 
@@ -177,6 +236,32 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    // Recherche floue dans les ALTERNATIVES
+    public List<Alternative> fuzzySearchAlternatives(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String lowerQuery = query.toLowerCase().trim();
+        int threshold = query.length() <= 5 ? 1 : (query.length() <= 10 ? 2 : 3);
+
+        return alternativesList.stream()
+                .filter(alt -> {
+                    String name = alt.getName().toLowerCase();
+                    if (name.contains(lowerQuery) || lowerQuery.contains(name)) {
+                        return true;
+                    }
+                    return levenshteinDistance(name, lowerQuery) <= threshold;
+                })
+                .sorted((a1, a2) -> {
+                    int dist1 = levenshteinDistance(a1.getName().toLowerCase(), lowerQuery);
+                    int dist2 = levenshteinDistance(a2.getName().toLowerCase(), lowerQuery);
+                    return Integer.compare(dist1, dist2);
+                })
+                .limit(5)
+                .collect(Collectors.toList());
+    }
+
     // Distance de Levenshtein pour correction orthographique
     private int levenshteinDistance(String s1, String s2) {
         int[][] dp = new int[s1.length() + 1][s2.length() + 1];
@@ -216,6 +301,7 @@ public class ProductService {
                 ));
     }
 
+    // Méthode pour vérifier si un produit existe dans la base
     public boolean productExists(String productName) {
         return boycottList.stream()
                 .anyMatch(p -> p.getName().equalsIgnoreCase(productName.trim()));

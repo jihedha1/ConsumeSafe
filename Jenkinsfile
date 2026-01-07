@@ -93,7 +93,7 @@ pipeline {
             }
         }
         stage('Deploy Application to Kubernetes') {
-            when { branch 'main' }
+
             steps {
                 echo "--- Deploying version ${env.BUILD_NUMBER} to Kubernetes ---"
                 sh "sed -i 's|image: .*|image: ${env.DOCKER_IMAGE_VERSION}|g' kubernetes/deployment.yaml"
@@ -101,10 +101,10 @@ pipeline {
             }
             post {
                 success {
-                    echo "✅ Application déployée/mise à jour sur Kubernetes."
+                    echo " Application déployée/mise à jour sur Kubernetes."
                 }
                 failure {
-                    echo "❌ Échec du déploiement sur Kubernetes."
+                    echo " Échec du déploiement sur Kubernetes."
                 }
             }
         }

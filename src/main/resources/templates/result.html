@@ -152,6 +152,19 @@
         .safe {
             background: linear-gradient(135deg, #007A3D, #005a2d);
             color: white;
+            border: 3px solid #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .tunisia-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #E70013, #c00010);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.6em;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
         }
 
         .unknown {
@@ -167,9 +180,15 @@
         }
 
         @keyframes bounceIn {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
 
         .message {
@@ -191,9 +210,42 @@
         }
 
         .message.success {
-            background: rgba(0, 122, 61, 0.1);
+            background: rgba(0, 122, 61, 0.15);
             color: #007A3D;
             border-left: 5px solid #007A3D;
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+        }
+
+        /* Box spéciale pour les produits tunisiens */
+        .tunisia-box {
+            background: linear-gradient(135deg, rgba(0, 122, 61, 0.1), rgba(231, 0, 19, 0.05));
+            border: 2px solid #007A3D;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 25px 0;
+            animation: slideInRight 0.8s ease-out 0.5s both;
+        }
+
+        .tunisia-title {
+            font-weight: bold;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: #007A3D;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tunisia-text {
+            color: #2d5016;
+            font-size: 1.05em;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+
+        [data-theme="light"] .tunisia-text {
+            color: #2d5016;
         }
 
         .message.unknown {
@@ -398,10 +450,21 @@
         }
 
         @media (max-width: 768px) {
-            .result-card { padding: 25px; }
-            .product-name { font-size: 1.8em; }
-            .message { font-size: 1.2em; }
-            .action-buttons { flex-direction: column; }
+            .result-card {
+                padding: 25px;
+            }
+
+            .product-name {
+                font-size: 1.8em;
+            }
+
+            .message {
+                font-size: 1.2em;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -418,23 +481,36 @@
     </div>
 
     <div class="result-card">
-        <!-- Nom du produit avec classe conditionnelle -->
+        <!-- Nom du produit avec classe conditionnelle et badge tunisien -->
         <div class="product-name"
              th:classappend="${result.severity == 'unknown' ? 'unknown' : (result.isBoycotted ? 'boycotted' : 'safe')}">
             <span th:text="${result.productName}">Nom du Produit</span>
+            <span class="tunisia-badge" th:if="${!result.isBoycotted and result.severity == 'safe'}">
+                🇹🇳 Tunisien
+            </span>
         </div>
 
         <!-- Icône de statut -->
         <div class="status-icon">
             <span th:if="${result.isBoycotted}">⚠️</span>
             <span th:if="${!result.isBoycotted and result.severity == 'unknown'}">❓</span>
-            <span th:if="${!result.isBoycotted and result.severity != 'unknown'}">✅</span>
+            <span th:if="${!result.isBoycotted and result.severity == 'safe'}">✅🇹🇳</span>
         </div>
 
         <!-- Message principal -->
         <div class="message"
              th:classappend="${result.severity == 'unknown' ? 'unknown' : (result.isBoycotted ? 'warning' : 'success')}">
             <span th:text="${result.message}">Message</span>
+        </div>
+
+        <!-- Box spéciale pour les produits tunisiens (alternatives) -->
+        <div class="tunisia-box" th:if="${!result.isBoycotted and result.severity == 'safe'}">
+            <div class="tunisia-title">
+                🇹🇳 Produit Tunisien Recommandé
+            </div>
+            <div class="tunisia-text" th:text="${result.reason}">
+                Information sur le produit tunisien
+            </div>
         </div>
 
         <!-- Box d'avertissement pour les produits inconnus -->
@@ -838,8 +914,12 @@
     }
 
     @keyframes flag-wave {
-        0%, 100% { transform: rotate(-2deg); }
-        50% { transform: rotate(2deg); }
+        0%, 100% {
+            transform: rotate(-2deg);
+        }
+        50% {
+            transform: rotate(2deg);
+        }
     }
 
     .flag-stripe {
@@ -847,9 +927,17 @@
         width: 100%;
     }
 
-    .flag-black { background: #000000; }
-    .flag-white { background: #FFFFFF; }
-    .flag-green { background: #007A3D; }
+    .flag-black {
+        background: #000000;
+    }
+
+    .flag-white {
+        background: #FFFFFF;
+    }
+
+    .flag-green {
+        background: #007A3D;
+    }
 
     .flag-triangle {
         position: absolute;
@@ -868,8 +956,12 @@
     }
 
     @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.1); }
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.1);
+        }
     }
 
     /* Bannière Solidarité */
@@ -893,8 +985,12 @@
     }
 
     @keyframes raise-fist {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
     }
 
     .solidarity-title {
@@ -918,8 +1014,12 @@
     }
 
     @keyframes gradient-shift {
-        0%, 100% { filter: hue-rotate(0deg); }
-        50% { filter: hue-rotate(20deg); }
+        0%, 100% {
+            filter: hue-rotate(0deg);
+        }
+        50% {
+            filter: hue-rotate(20deg);
+        }
     }
 
     .solidarity-subtitle {
@@ -992,8 +1092,12 @@
     }
 
     @keyframes name-glow {
-        0%, 100% { text-shadow: 0 0 10px rgba(0, 122, 61, 0.3); }
-        50% { text-shadow: 0 0 20px rgba(0, 122, 61, 0.6); }
+        0%, 100% {
+            text-shadow: 0 0 10px rgba(0, 122, 61, 0.3);
+        }
+        50% {
+            text-shadow: 0 0 20px rgba(0, 122, 61, 0.6);
+        }
     }
 
     .name-icon {
@@ -1025,9 +1129,15 @@
     }
 
     @keyframes wave {
-        0%, 100% { transform: rotate(0deg); }
-        25% { transform: rotate(-10deg); }
-        75% { transform: rotate(10deg); }
+        0%, 100% {
+            transform: rotate(0deg);
+        }
+        25% {
+            transform: rotate(-10deg);
+        }
+        75% {
+            transform: rotate(10deg);
+        }
     }
 
     /* Réseaux Sociaux */
@@ -1073,20 +1183,45 @@
         font-weight: 600;
     }
 
-    .linkedin { color: #0077b5; }
-    .linkedin:hover { background: rgba(0, 119, 181, 0.1); }
+    .linkedin {
+        color: #0077b5;
+    }
 
-    .github { color: #ffffff; }
-    .github:hover { background: rgba(255, 255, 255, 0.1); }
+    .linkedin:hover {
+        background: rgba(0, 119, 181, 0.1);
+    }
 
-    .facebook { color: #1877f2; }
-    .facebook:hover { background: rgba(24, 119, 242, 0.1); }
+    .github {
+        color: #ffffff;
+    }
 
-    .email { color: #ea4335; }
-    .email:hover { background: rgba(234, 67, 53, 0.1); }
+    .github:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
 
-    .portfolio { color: #007A3D; }
-    .portfolio:hover { background: rgba(0, 122, 61, 0.1); }
+    .facebook {
+        color: #1877f2;
+    }
+
+    .facebook:hover {
+        background: rgba(24, 119, 242, 0.1);
+    }
+
+    .email {
+        color: #ea4335;
+    }
+
+    .email:hover {
+        background: rgba(234, 67, 53, 0.1);
+    }
+
+    .portfolio {
+        color: #007A3D;
+    }
+
+    .portfolio:hover {
+        background: rgba(0, 122, 61, 0.1);
+    }
 
     /* Compteur */
     .footer-counter {
@@ -1196,9 +1331,17 @@
         flex: 1.1;
     }
 
-    .bar-black { background: #000000; }
-    .bar-white { background: #FFFFFF; }
-    .bar-green { background: #007A3D; }
+    .bar-black {
+        background: #000000;
+    }
+
+    .bar-white {
+        background: #FFFFFF;
+    }
+
+    .bar-green {
+        background: #007A3D;
+    }
 
     .bar-triangle {
         position: absolute;
@@ -1288,7 +1431,9 @@
     }
 
     @keyframes spin {
-        to { transform: rotate(360deg); }
+        to {
+            transform: rotate(360deg);
+        }
     }
 
     .separator {
@@ -1303,9 +1448,15 @@
     }
 
     @keyframes heartbeat {
-        0%, 100% { transform: scale(1); }
-        10%, 30% { transform: scale(1.2); }
-        20%, 40% { transform: scale(1); }
+        0%, 100% {
+            transform: scale(1);
+        }
+        10%, 30% {
+            transform: scale(1.2);
+        }
+        20%, 40% {
+            transform: scale(1);
+        }
     }
 
     .footer-tagline {
@@ -1431,7 +1582,7 @@
 
 <!-- JavaScript du Footer -->
 <script>
-    (function() {
+    (function () {
         'use strict';
 
         // Citations rotatives
@@ -1542,7 +1693,7 @@
         }
 
         // Partage du projet
-        window.shareProject = function() {
+        window.shareProject = function () {
             const text = "🇵🇸 ConsumeSafe - Consommation Éthique pour la Palestine\n" +
                 "Vérifiez si vos produits soutiennent l'occupation.\n" +
                 "Soutenez l'économie tunisienne et la cause palestinienne!\n\n" +
@@ -1553,7 +1704,8 @@
                     title: 'ConsumeSafe 🇵🇸',
                     text: text,
                     url: window.location.origin
-                }).catch(() => {});
+                }).catch(() => {
+                });
             } else {
                 navigator.clipboard.writeText(text).then(() => {
                     alert('✅ Lien copié! Partagez-le avec vos proches.');
@@ -1568,10 +1720,10 @@
         function initSocialAnimations() {
             const socialLinks = document.querySelectorAll('.social-link');
             socialLinks.forEach(link => {
-                link.addEventListener('mouseenter', function() {
+                link.addEventListener('mouseenter', function () {
                     this.style.transform = 'translateY(-10px) scale(1.1)';
                 });
-                link.addEventListener('mouseleave', function() {
+                link.addEventListener('mouseleave', function () {
                     this.style.transform = 'translateY(0) scale(1)';
                 });
             });
