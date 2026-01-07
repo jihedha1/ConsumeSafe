@@ -259,7 +259,7 @@
         gap: 15px;
     }
 
-    /* Language Selector */
+    /* Language Selector - CORRIGÉ POUR MODE SOMBRE */
     .language-selector {
         position: relative;
     }
@@ -276,6 +276,18 @@
         cursor: pointer;
         font-weight: 600;
         transition: var(--transition-fast);
+    }
+
+    [data-theme="dark"] .lang-btn {
+        background: rgba(0, 122, 61, 0.2);
+        border-color: #007A3D;
+        color: #ffffff;
+    }
+
+    [data-theme="light"] .lang-btn {
+        background: rgba(0, 122, 61, 0.1);
+        border-color: #007A3D;
+        color: #1a202c;
     }
 
     .lang-btn:hover {
@@ -309,6 +321,17 @@
         visibility: hidden;
         transform: translateY(-10px);
         transition: var(--transition-normal);
+        z-index: 1001;
+    }
+
+    [data-theme="dark"] .lang-dropdown {
+        background: #1a1a1a;
+        border-color: #007A3D;
+    }
+
+    [data-theme="light"] .lang-dropdown {
+        background: #ffffff;
+        border-color: #007A3D;
     }
 
     .lang-dropdown.show {
@@ -327,9 +350,22 @@
         transition: var(--transition-fast);
     }
 
+    [data-theme="dark"] .lang-option {
+        color: #e0e0e0;
+    }
+
+    [data-theme="light"] .lang-option {
+        color: #1a202c;
+    }
+
     .lang-option:hover {
-        background: rgba(0, 122, 61, 0.1);
+        background: rgba(0, 122, 61, 0.15);
         color: var(--palestine-green);
+    }
+
+    [data-theme="dark"] .lang-option:hover {
+        background: rgba(0, 122, 61, 0.25);
+        color: #00ff88;
     }
 
     .lang-option:first-child {
@@ -343,8 +379,6 @@
     .lang-flag {
         font-size: 1.5em;
     }
-
-    /* Theme Toggle supprimé - utiliser le bouton existant */
 
     /* Palestine Badge */
     .palestine-badge {
@@ -393,6 +427,14 @@
             overflow-y: auto;
         }
 
+        [data-theme="dark"] .navbar-menu {
+            background: #1a1a1a;
+        }
+
+        [data-theme="light"] .navbar-menu {
+            background: #ffffff;
+        }
+
         .navbar-menu.active {
             transform: translateY(0);
             opacity: 1;
@@ -416,7 +458,11 @@
             width: 100%;
             justify-content: center;
             padding-top: 20px;
-            border-top: 2px solid var(--border-color);
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="light"] .navbar-actions {
+            border-top: 2px solid rgba(0, 0, 0, 0.1);
         }
 
         .lang-dropdown {
@@ -439,12 +485,21 @@
         background: rgba(0, 0, 0, 0.98);
     }
 
+    [data-theme="light"] .cs-navbar.scrolled {
+        background: rgba(255, 255, 255, 0.98);
+    }
+
     /* Espacer le contenu sous la navbar */
     body {
         padding-top: 70px;
     }
-</style>
 
+    /* Animation pour le drapeau */
+    @keyframes wave {
+        0%, 100% { transform: rotate(-2deg); }
+        50% { transform: rotate(2deg); }
+    }
+</style>
 <script>
     // Navbar JavaScript
     (function() {

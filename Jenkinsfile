@@ -7,30 +7,30 @@ pipeline {
     }
 
     environment {
-
         DOCKER_REGISTRY = 'jihedhallem'
         APP_NAME = 'consumesafe'
         DOCKER_CREDENTIALS_ID = 'dockerhub-pwd'
         PORT = '8088'
+        // On définit le chemin du cache Trivy pour éviter les problèmes de permissions
+        TRIVY_CACHE_DIR = "/var/lib/jenkins/.trivy/cache"
     }
 
     stages {
         // Étape 1: Compilation et tests
         stage('Compile, Test & Package') {
             steps {
+                // On utilise 'package' car c'est suffisant pour créer le JAR.
                 sh 'mvn clean package -DskipTests'
-                // Note: Nous pourrions exécuter les tests séparément si nécessaire
             }
             post {
                 success {
                     junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
-                    // Archivage du JAR généré
                     archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
                 }
             }
         }
 
-        // Étape 2: Exécution des tests (optionnel mais recommandé)
+        // Étape 2: Exécution des tests
         stage('Run Tests') {
             steps {
                 sh 'mvn test'
@@ -42,7 +42,23 @@ pipeline {
             }
         }
 
-        // Étape 3: Analyse du code avec SonarQube (optionnel)
+        // ==================================================================
+        // DEBUT AJOUT DEVSECOPS : Scan des dépendances du code (SCA)
+        // ==================================================================
+        stage('Security Scan - Dependencies (SCA)') {
+            steps {
+                echo '--- Scanning project dependencies with Trivy ---'
+                // Trivy scanne le pom.xml pour trouver les vulnérabilités dans les librairies.
+                // '--exit-code 1' fait échouer le build si une faille est trouvée.
+                // On scanne uniquement les failles CRITICAL et HIGH.
+                sh "trivy fs --exit-code 1 --severity CRITICAL,HIGH ."
+            }
+        }
+        // ==================================================================
+        // FIN AJOUT DEVSECOPS
+        // ==================================================================
+
+        // Étape 3: Analyse du code avec SonarQube (inchangée)
         stage('Code Quality Analysis') {
             when {
                 expression { env.SONAR_ENABLED == 'true' }
@@ -54,16 +70,14 @@ pipeline {
             }
         }
 
-        // Étape 4: Construction de l'image Docker
+        // Étape 4: Construction de l'image Docker (inchangée)
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Versionnement de l'image
                     def version = "${env.BUILD_NUMBER}"
                     def latestTag = "${DOCKER_REGISTRY}/${APP_NAME}:latest"
                     def versionTag = "${DOCKER_REGISTRY}/${APP_NAME}:${version}"
 
-                    // Construction de l'image avec deux tags
                     sh """
                         docker build \
                             -t ${versionTag} \
@@ -72,118 +86,93 @@ pipeline {
                             .
                     """
 
-                    // Sauvegarde des tags pour les étapes suivantes
                     env.DOCKER_IMAGE_VERSION = versionTag
                     env.DOCKER_IMAGE_LATEST = latestTag
                 }
             }
         }
 
-        // Étape 5: Push vers Docker Hub
+        // ==================================================================
+        // DEBUT AJOUT DEVSECOPS : Scan de l'image Docker construite
+        // ==================================================================
+        stage('Security Scan - Docker Image') {
+            steps {
+                echo "--- Scanning Docker image: ${env.DOCKER_IMAGE_VERSION} ---"
+                // Trivy scanne l'image que nous venons de construire pour des vulnérabilités
+                // dans le système d'exploitation de base (Alpine, etc.).
+                sh "trivy image --exit-code 1 --severity CRITICAL,HIGH ${env.DOCKER_IMAGE_VERSION}"
+            }
+        }
+        // ==================================================================
+        // FIN AJOUT DEVSECOPS
+        // ==================================================================
+
+        // Étape 5: Push vers Docker Hub (inchangée)
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    // Connexion à Docker Hub
                     withCredentials([string(credentialsId: DOCKER_CREDENTIALS_ID, variable: 'DOCKER_PASSWORD')]) {
-                        sh """
-                            docker login -u ${DOCKER_REGISTRY} -p ${DOCKER_PASSWORD}
-                        """
+                        sh "docker login -u ${DOCKER_REGISTRY} -p ${DOCKER_PASSWORD}"
                     }
-
-                    // Push des images
-                    sh """
-                        docker push ${env.DOCKER_IMAGE_VERSION}
-                        docker push ${env.DOCKER_IMAGE_LATEST}
-                    """
-
-                    // Nettoyage local des images pour libérer de l'espace
-                    sh """
-                        docker rmi ${env.DOCKER_IMAGE_VERSION} || true
-                        docker rmi ${env.DOCKER_IMAGE_LATEST} || true
-                    """
+                    sh "docker push ${env.DOCKER_IMAGE_VERSION}"
+                    sh "docker push ${env.DOCKER_IMAGE_LATEST}"
+                    sh "docker rmi ${env.DOCKER_IMAGE_VERSION} || true"
+                    sh "docker rmi ${env.DOCKER_IMAGE_LATEST} || true"
                 }
             }
         }
 
-        // Étape 6: Déploiement
-        stage('Deploy Application') {
+        // Étape 6: Déploiement (MODIFIÉE pour utiliser Kubernetes)
+        stage('Deploy Application to Kubernetes') {
+            // On ne déploie que si on est sur la branche 'main'
+            when { branch 'main' }
             steps {
-                script {
-                    // Arrêt et suppression du conteneur existant
-                    sh '''
-                        docker stop ${APP_NAME} || true
-                        docker rm ${APP_NAME} || true
-                    '''
+                echo "--- Deploying version ${env.BUILD_NUMBER} to Kubernetes ---"
+                // Met à jour le fichier de déploiement avec le bon tag d'image.
+                sh "sed -i 's|image: .*|image: ${env.DOCKER_IMAGE_VERSION}|g' kubernetes/deployment.yaml"
 
-                    // Lancement du nouveau conteneur avec des options améliorées
-                    sh """
-                        docker run -d \
-                            --name ${APP_NAME} \
-                            -p ${PORT}:${PORT} \
-                            --restart unless-stopped \
-                            -e SPRING_PROFILES_ACTIVE=production \
-                            -e JAVA_OPTS="-Xmx512m -Xms256m" \
-                            ${env.DOCKER_IMAGE_VERSION}
-                    """
-
-                    // Vérification que l'application est opérationnelle
-                    sleep 30
-                    sh """
-                        curl -f http://localhost:${PORT}/actuator/health || echo "Health check failed, but continuing..."
-                    """
-                }
+                // Applique la configuration au cluster Kubernetes.
+                sh 'kubectl apply -f kubernetes/'
             }
             post {
                 success {
-                    echo "✅ Application déployée avec succès sur le port ${PORT}"
-                    echo "🌐 URL: http://localhost:${PORT}"
+                    echo "✅ Application déployée/mise à jour sur Kubernetes."
                 }
                 failure {
-                    echo "❌ Échec du déploiement"
-                    // Tentative d'affichage des logs du conteneur en cas d'échec
-                    sh 'docker logs ${APP_NAME} --tail 50 || true'
+                    echo "❌ Échec du déploiement sur Kubernetes."
                 }
             }
         }
 
-        // Étape 7: Tests de post-déploiement (optionnel)
+        // Étape 7: Tests de post-déploiement (inchangée, mais devrait être adaptée pour K8s)
         stage('Post-Deployment Tests') {
             steps {
                 script {
-                    // Attente que l'application soit complètement démarrée
                     sleep 10
-
-                    // Tests d'intégration simples
-                    sh """
-                        echo "Vérification de l'état de l'application..."
-                        curl -s -o /dev/null -w "%{http_code}" http://localhost:${PORT}/ || true
-                    """
+                    // Note: Cette commande ne fonctionnera plus telle quelle avec Kubernetes.
+                    // Il faudrait obtenir l'URL du service via 'minikube service' ou un Ingress.
+                    // Pour la simplicité, on la laisse comme placeholder.
+                    echo "Vérification de l'état de l'application (placeholder pour K8s)..."
                 }
             }
         }
     }
 
     post {
+        // ... (section post inchangée) ...
         always {
-            // Nettoyage des conteneurs et images qui pourraient être restés
             sh '''
                 docker container prune -f || true
                 docker image prune -f || true
             '''
-
-            // Notification ou logs supplémentaires
             echo "Pipeline terminé avec le statut: ${currentBuild.result}"
         }
         success {
-            // Notification de succès (peut être intégrée avec Slack, Email, etc.)
             echo "🎉 Pipeline exécuté avec succès!"
             echo "📦 Image Docker: ${env.DOCKER_IMAGE_VERSION}"
-            echo "🚀 Application disponible sur le port: ${PORT}"
         }
         failure {
-            // Notification d'échec
             echo "❌ Pipeline en échec"
-            // On pourrait ajouter des étapes de rollback ici
         }
         unstable {
             echo "⚠️ Pipeline instable - vérifiez les tests"
