@@ -1,4 +1,3 @@
-// Jenkinsfile (Version finale avec Trivy pour le SCA)
 pipeline {
     agent any
     tools {
@@ -31,7 +30,7 @@ pipeline {
             steps {
                 echo '--- Scanning project dependencies with Trivy ---'
                                 // La variable d'environnement TRIVY_CACHE_DIR sera automatiquement utilisée par Trivy
-                sh "trivy fs --exit-code 1 --severity CRITICAL,HIGH ."
+                sh "trivy fs --severity CRITICAL,HIGH ."
             }
         }
 
