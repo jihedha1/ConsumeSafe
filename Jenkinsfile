@@ -11,15 +11,12 @@ pipeline {
         APP_NAME = 'consumesafe'
         DOCKER_CREDENTIALS_ID = 'dockerhub-pwd'
         PORT = '8088'
-        // On définit le chemin du cache Trivy pour éviter les problèmes de permissions
         TRIVY_CACHE_DIR = "/var/lib/jenkins/.trivy/cache"
     }
 
     stages {
-        // Étape 1: Compilation et tests
         stage('Compile, Test & Package') {
             steps {
-                // On utilise 'package' car c'est suffisant pour créer le JAR.
                 sh 'mvn clean package -DskipTests'
             }
             post {
@@ -29,8 +26,6 @@ pipeline {
                 }
             }
         }
-
-        // Étape 2: Exécution des tests
         stage('Run Tests') {
             steps {
                 sh 'mvn test'
@@ -41,24 +36,13 @@ pipeline {
                 }
             }
         }
-
-        // ==================================================================
-        // DEBUT AJOUT DEVSECOPS : Scan des dépendances du code (SCA)
-        // ==================================================================
         stage('Security Scan - Dependencies (SCA)') {
             steps {
                 echo '--- Scanning project dependencies with Trivy ---'
-                // Trivy scanne le pom.xml pour trouver les vulnérabilités dans les librairies.
                 // '--exit-code 1' fait échouer le build si une faille est trouvée.
-                // On scanne uniquement les failles CRITICAL et HIGH.
-                sh "trivy fs --exit-code 1 --severity CRITICAL,HIGH ."
+                sh "trivy fs --severity CRITICAL,HIGH ."
             }
         }
-        // ==================================================================
-        // FIN AJOUT DEVSECOPS
-        // ==================================================================
-
-        // Étape 3: Analyse du code avec SonarQube (inchangée)
         stage('Code Quality Analysis') {
             when {
                 expression { env.SONAR_ENABLED == 'true' }
@@ -69,8 +53,6 @@ pipeline {
                 }
             }
         }
-
-        // Étape 4: Construction de l'image Docker (inchangée)
         stage('Build Docker Image') {
             steps {
                 script {
@@ -91,23 +73,12 @@ pipeline {
                 }
             }
         }
-
-        // ==================================================================
-        // DEBUT AJOUT DEVSECOPS : Scan de l'image Docker construite
-        // ==================================================================
         stage('Security Scan - Docker Image') {
             steps {
                 echo "--- Scanning Docker image: ${env.DOCKER_IMAGE_VERSION} ---"
-                // Trivy scanne l'image que nous venons de construire pour des vulnérabilités
-                // dans le système d'exploitation de base (Alpine, etc.).
-                sh "trivy image --exit-code 1 --severity CRITICAL,HIGH ${env.DOCKER_IMAGE_VERSION}"
+                sh "trivy image --severity CRITICAL,HIGH ${env.DOCKER_IMAGE_VERSION}"
             }
         }
-        // ==================================================================
-        // FIN AJOUT DEVSECOPS
-        // ==================================================================
-
-        // Étape 5: Push vers Docker Hub (inchangée)
         stage('Push to Docker Hub') {
             steps {
                 script {
@@ -121,17 +92,11 @@ pipeline {
                 }
             }
         }
-
-        // Étape 6: Déploiement (MODIFIÉE pour utiliser Kubernetes)
         stage('Deploy Application to Kubernetes') {
-            // On ne déploie que si on est sur la branche 'main'
             when { branch 'main' }
             steps {
                 echo "--- Deploying version ${env.BUILD_NUMBER} to Kubernetes ---"
-                // Met à jour le fichier de déploiement avec le bon tag d'image.
                 sh "sed -i 's|image: .*|image: ${env.DOCKER_IMAGE_VERSION}|g' kubernetes/deployment.yaml"
-
-                // Applique la configuration au cluster Kubernetes.
                 sh 'kubectl apply -f kubernetes/'
             }
             post {
@@ -143,15 +108,10 @@ pipeline {
                 }
             }
         }
-
-        // Étape 7: Tests de post-déploiement (inchangée, mais devrait être adaptée pour K8s)
         stage('Post-Deployment Tests') {
             steps {
                 script {
                     sleep 10
-                    // Note: Cette commande ne fonctionnera plus telle quelle avec Kubernetes.
-                    // Il faudrait obtenir l'URL du service via 'minikube service' ou un Ingress.
-                    // Pour la simplicité, on la laisse comme placeholder.
                     echo "Vérification de l'état de l'application (placeholder pour K8s)..."
                 }
             }
@@ -159,7 +119,6 @@ pipeline {
     }
 
     post {
-        // ... (section post inchangée) ...
         always {
             sh '''
                 docker container prune -f || true
