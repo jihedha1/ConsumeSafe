@@ -10,7 +10,7 @@ pipeline {
 
         DOCKER_REGISTRY = 'jihedhallem'
         APP_NAME = 'consumesafe'
-        DOCKER_CREDENTIALS_ID = 'dockerhub-pwd'  /
+        DOCKER_CREDENTIALS_ID = 'dockerhub-pwd'
         PORT = '8088'
     }
 
