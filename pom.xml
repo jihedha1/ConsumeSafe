@@ -70,11 +70,6 @@
                 <artifactId>dependency-check-maven</artifactId>
                 <version>${dependency-check-maven.version}</version>
                 <configuration>
-                    <!--
-                        Ces deux lignes sont la solution de contournement pour éviter l'erreur 403 de l'API NVD.
-                        Le plugin utilisera sa base de données locale sans essayer de la mettre à jour.
-                    -->
-                    <autoUpdate>false</autoUpdate>
                     <!-- Option pour faire échouer le build si une vulnérabilité d'un certain niveau est trouvée -->
                     <failBuildOnCVSS>8</failBuildOnCVSS>
                 </configuration>

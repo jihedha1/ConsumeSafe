@@ -26,9 +26,13 @@ pipeline {
         // ==================================================================
         stage('Build, Test & Scan') {
                     steps {
-                        echo '--- Running Build, Tests, and SCA Scan (with offline NVD) ---'
-                        // On n'a plus besoin du fichier de settings pour la clé NVD
-                        sh 'mvn clean install'
+                        echo '--- Running Build, Tests, and Initializing SCA Database ---'
+
+                        withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+                            // On exécute 'mvn install' en passant la clé d'API directement en ligne de commande.
+                            // Les guillemets doubles sont importants pour que ${NVD_API_KEY} soit remplacé.
+                            sh "mvn clean install -DnvdApiKey=${NVD_API_KEY}"
+                        }
                     }
                 }
 
