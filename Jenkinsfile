@@ -9,6 +9,7 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
         DOCKER_REGISTRY_URL = 'https://registry.hub.docker.com'
         DOCKER_IMAGE_NAME = "votre-dockerhub-id/consumesafe-spring"
+        TRIVY_CACHE_DIR = "/var/lib/jenkins/.trivy/cache"
     }
 
     stages {
@@ -29,9 +30,7 @@ pipeline {
         stage('Security Scan (SCA) with Trivy') {
             steps {
                 echo '--- Scanning project dependencies with Trivy ---'
-                // Trivy scanne le système de fichiers du projet.
-                // Il détecte automatiquement le pom.xml et analyse les dépendances.
-                // '--exit-code 1' et '--severity' font échouer le build si nécessaire.
+                                // La variable d'environnement TRIVY_CACHE_DIR sera automatiquement utilisée par Trivy
                 sh "trivy fs --exit-code 1 --severity CRITICAL,HIGH ."
             }
         }
