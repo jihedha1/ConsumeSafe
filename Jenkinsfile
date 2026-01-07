@@ -31,6 +31,7 @@ pipeline {
                 configFileProvider([configFile(fileId: 'global-maven-settings', variable: 'MAVEN_SETTINGS')]) {
                     // La commande 'mvn' utilisera automatiquement le fichier de settings fourni
                     sh 'mvn -s $MAVEN_SETTINGS clean install'
+                }
             }
         }
 
