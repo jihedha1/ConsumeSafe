@@ -24,18 +24,13 @@ pipeline {
         // ==================================================================
         // STAGE 1: BUILD & TEST - Compilation et tests unitaires
         // ==================================================================
-        stage('Build & Test' ) {
-            steps {
-                echo '--- Running Build, Tests, and SCA Scan ---'
-
-                                // On utilise le plugin Config File Provider pour fournir le settings.xml
-                                configFileProvider([configFile(fileId: 'global-maven-settings', variable: 'MAVEN_SETTINGS')]) {
-                                    // On lance 'mvn install' qui va compiler, tester ET lancer le dependency-check
-                                    // car le plugin est configuré pour s'exécuter dans la phase 'install' du pom.xml
-                                    sh 'mvn -s $MAVEN_SETTINGS clean install'
-                                }
-            }
-        }
+        stage('Build, Test & Scan') {
+                    steps {
+                        echo '--- Running Build, Tests, and SCA Scan (with offline NVD) ---'
+                        // On n'a plus besoin du fichier de settings pour la clé NVD
+                        sh 'mvn clean install'
+                    }
+                }
 
         // ==================================================================
         // STAGE 3: BUILD DOCKER IMAGE - Création de l'image conteneurisée

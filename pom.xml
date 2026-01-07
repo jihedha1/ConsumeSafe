@@ -1,84 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.9</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
-	<groupId>com.consumesafe</groupId>
-	<artifactId>app</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>ConsumeSafe</name>
-	<description>Demo project for Spring Boot</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
-	<properties>
-		<java.version>17</java.version>
-	</properties>
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-        <dependency>
-            <groupId>nz.net.ultraq.thymeleaf</groupId>
-            <artifactId>thymeleaf-layout-dialect</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.annotation</groupId>
-            <artifactId>jakarta.annotation-api</artifactId>
-        </dependency>
-        <dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
+    <!-- Dépendance parente de Spring Boot, qui gère les versions des dépendances -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.7</version> <!-- Vous pouvez utiliser une version stable récente -->
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <!-- Informations de votre projet -->
+    <groupId>com.consumesafe</groupId>
+    <artifactId>app</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>ConsumeSafe</name>
+    <description>Application pour vérifier les produits et suggérer des alternatives.</description>
+
+    <!-- Propriétés du projet, comme la version de Java -->
+    <properties>
+        <java.version>17</java.version>
+        <!-- Propriété pour la version du plugin OWASP -->
+        <dependency-check-maven.version>9.0.9</dependency-check-maven.version>
+    </properties>
+
+    <!-- Liste des dépendances de votre application -->
+    <dependencies>
+        <!-- Pour créer des applications web avec des contrôleurs REST et MVC -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Pour créer les pages HTML dynamiques -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <!-- Pour lire et écrire des données JSON (utilisé par notre ProductService ) -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <!-- Pour les tests unitaires (JUnit 5, Mockito, etc.) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- Section pour la configuration des plugins Maven -->
+    <build>
+        <plugins>
+            <!-- Plugin standard de Spring Boot pour packager l'application en un .jar exécutable -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- ===================================================================== -->
+            <!-- PLUGIN OWASP DEPENDENCY-CHECK AVEC LA CONFIGURATION DE CONTOURNEMENT  -->
+            <!-- ===================================================================== -->
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>9.0.9</version>
+                <version>${dependency-check-maven.version}</version>
+                <configuration>
+                    <!--
+                        Ces deux lignes sont la solution de contournement pour éviter l'erreur 403 de l'API NVD.
+                        Le plugin utilisera sa base de données locale sans essayer de la mettre à jour.
+                    -->
+                    <autoUpdate>false</autoUpdate>
+                    <!-- Option pour faire échouer le build si une vulnérabilité d'un certain niveau est trouvée -->
+                    <failBuildOnCVSS>8</failBuildOnCVSS>
+                </configuration>
                 <executions>
                     <execution>
+                        <!-- Le goal 'check' sera exécuté automatiquement pendant la phase 'verify' du cycle de vie Maven -->
                         <goals>
                             <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
-		</plugins>
+            <!-- ===================================================================== -->
 
-	</build>
+        </plugins>
+    </build>
 
 </project>
