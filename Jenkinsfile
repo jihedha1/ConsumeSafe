@@ -26,25 +26,14 @@ pipeline {
         // ==================================================================
         stage('Build & Test' ) {
             steps {
-                echo '--- Compiling, running unit tests, and packaging ---'
-                // 'mvn clean install' est la commande standard pour les projets Maven.
-                // Elle compile le code, exécute les tests (JUnit) et crée le fichier .jar.
-                // Si un test échoue, le pipeline s'arrêtera ici.
-                sh 'mvn clean install'
-            }
-        }
+                echo '--- Running Build, Tests, and SCA Scan ---'
 
-        // ==================================================================
-        // STAGE 2: SECURITY SCAN - Analyse des vulnérabilités
-        // ==================================================================
-        stage('Security Scan (SCA)') {
-            steps {
-                echo '--- Scanning for known vulnerabilities in dependencies ---'
-
-                        withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
-                            // Utilisation de guillemets doubles pour assurer l'interpolation de la variable
-                            sh "mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${NVD_API_KEY}"
-                        }
+                                // On utilise le plugin Config File Provider pour fournir le settings.xml
+                                configFileProvider([configFile(fileId: 'global-maven-settings', variable: 'MAVEN_SETTINGS')]) {
+                                    // On lance 'mvn install' qui va compiler, tester ET lancer le dependency-check
+                                    // car le plugin est configuré pour s'exécuter dans la phase 'install' du pom.xml
+                                    sh 'mvn -s $MAVEN_SETTINGS clean install'
+                                }
             }
         }
 
