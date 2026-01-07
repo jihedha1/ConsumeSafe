@@ -27,10 +27,10 @@ pipeline {
         stage('Build & Test' ) {
             steps {
                 echo '--- Compiling, running unit tests, and packaging ---'
-                // 'mvn clean install' est la commande standard pour les projets Maven.
-                // Elle compile le code, exécute les tests (JUnit) et crée le fichier .jar.
-                // Si un test échoue, le pipeline s'arrêtera ici.
-                sh 'mvn clean install'
+
+                configFileProvider([configFile(fileId: 'global-maven-settings', variable: 'MAVEN_SETTINGS')]) {
+                    // La commande 'mvn' utilisera automatiquement le fichier de settings fourni
+                    sh 'mvn -s $MAVEN_SETTINGS clean install'
             }
         }
 
@@ -41,10 +41,11 @@ pipeline {
             steps {
                 echo '--- Scanning for known vulnerabilities in dependencies ---'
 
-                        withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
-                            // Utilisation de guillemets doubles pour assurer l'interpolation de la variable
-                            sh "mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${NVD_API_KEY}"
-                        }
+                // La configuration est maintenant dans le pom.xml et le settings.xml,
+                // donc la commande redevient simple.
+                configFileProvider([configFile(fileId: 'global-maven-settings', variable: 'MAVEN_SETTINGS')]) {
+                    sh 'mvn -s $MAVEN_SETTINGS org.owasp:dependency-check-maven:check'
+                }
             }
         }
 
